@@ -170,7 +170,7 @@ export default function Dashboard() {
             title="Super Drawdown Compliance"
             value={
               derived.drawdown.minMet
-                ? derived.drawdown.excessIntentional
+                ? state.super.excessDrawdownIntentional
                   ? "Yes / Yes"
                   : "Yes / No"
                 : "No"
