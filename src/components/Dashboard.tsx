@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import type { Dispatch, SetStateAction } from "react";
 import {
   AppState,
   DEFAULT_STATE,
@@ -10,7 +11,6 @@ import {
   Traffic,
 } from "@/lib/types";
 import {
-  clamp,
   computeBaselineCoverageRatio,
   computeCashRunwayMonths,
   computeDrawdownCompliance,
@@ -39,17 +39,12 @@ import {
 } from "@/components/ui";
 
 export default function Dashboard() {
-  const [state, setState] = useState<AppState>(DEFAULT_STATE);
+  const [state, setState] = useState<AppState>(() => loadState() ?? DEFAULT_STATE);
 
-  // Load once
+  // Persist (debounced to avoid excessive sync localStorage writes)
   useEffect(() => {
-    const loaded = loadState();
-    if (loaded) setState(loaded);
-  }, []);
-
-  // Persist
-  useEffect(() => {
-    saveState(state);
+    const id = window.setTimeout(() => saveState(state), 300);
+    return () => window.clearTimeout(id);
   }, [state]);
 
   const year = nowYear();
@@ -111,17 +106,14 @@ export default function Dashboard() {
     };
   }, [state]);
 
-  const set = <K extends keyof AppState>(key: K, value: AppState[K]) =>
-    setState((s) => ({ ...s, [key]: value }));
-
-  const setNested = <K extends keyof AppState, NK extends string>(
+  const setNested = <K extends keyof AppState, NK extends keyof AppState[K]>(
     key: K,
     nested: NK,
-    value: any
+    value: AppState[K][NK]
   ) =>
     setState((s) => ({
       ...s,
-      [key]: { ...(s[key] as any), [nested]: value },
+      [key]: { ...s[key], [nested]: value },
     }));
 
   return (
@@ -718,7 +710,7 @@ function DiscretionaryTable({
   lock,
 }: {
   state: AppState;
-  setState: (s: AppState) => void;
+  setState: Dispatch<SetStateAction<AppState>>;
   indexedFactor: number;
   lock: boolean;
 }) {
@@ -753,13 +745,13 @@ function DiscretionaryTable({
               value={planned}
               disabled={lock}
               onChange={(v) =>
-                setState({
-                  ...state,
+                setState((s) => ({
+                  ...s,
                   discretionary: {
-                    ...state.discretionary,
-                    planned: { ...state.discretionary.planned, [r.key]: v },
+                    ...s.discretionary,
+                    planned: { ...s.discretionary.planned, [r.key]: v },
                   },
-                })
+                }))
               }
             />
 
@@ -770,13 +762,13 @@ function DiscretionaryTable({
             <MoneyInput
               value={actual}
               onChange={(v) =>
-                setState({
-                  ...state,
+                setState((s) => ({
+                  ...s,
                   discretionary: {
-                    ...state.discretionary,
-                    actual: { ...state.discretionary.actual, [r.key]: v },
+                    ...s.discretionary,
+                    actual: { ...s.discretionary.actual, [r.key]: v },
                   },
-                })
+                }))
               }
             />
           </div>

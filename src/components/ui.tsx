@@ -95,17 +95,27 @@ export function TrafficPill({
       ? "bg-amber-100 text-amber-900 border border-amber-200"
       : "bg-red-100 text-red-900 border border-red-200";
 
-  const clickable = onClick ? "cursor-pointer hover:opacity-90" : "";
+  const clickable = onClick
+    ? "cursor-pointer hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-400"
+    : "";
   const ring = active ? "ring-2 ring-slate-400" : "";
 
-  return (
-    <span
-      className={`${base} ${colors} ${clickable} ${ring}`}
-      onClick={onClick}
-    >
-      {label}
-    </span>
-  );
+  const className = `${base} ${colors} ${clickable} ${ring}`;
+
+  if (onClick) {
+    return (
+      <button
+        type="button"
+        className={className}
+        onClick={onClick}
+        aria-pressed={active}
+      >
+        {label}
+      </button>
+    );
+  }
+
+  return <span className={className}>{label}</span>;
 }
 
 export function TogglePill({
@@ -132,6 +142,26 @@ export function TogglePill({
   );
 }
 
+type TextFieldProps = {
+  label: string;
+  value: string | null | undefined;
+  onChange: (v: string) => void;
+  prefix?: string;
+  suffix?: string;
+  text: true;
+  percent?: never;
+};
+
+type NumberFieldProps = {
+  label: string;
+  value: number | null | undefined;
+  onChange: (v: number) => void;
+  prefix?: string;
+  suffix?: string;
+  text?: false;
+  percent?: boolean;
+};
+
 export function Field({
   label,
   value,
@@ -140,15 +170,7 @@ export function Field({
   suffix,
   text,
   percent,
-}: {
-  label: string;
-  value: any;
-  onChange: (v: any) => void;
-  prefix?: string;
-  suffix?: string;
-  text?: boolean;
-  percent?: boolean;
-}) {
+}: TextFieldProps | NumberFieldProps) {
   const inputClass =
     "w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-slate-400";
   const wrapper = "grid grid-cols-1 gap-1";

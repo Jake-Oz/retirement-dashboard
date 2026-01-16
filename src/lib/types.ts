@@ -60,17 +60,17 @@ export interface AppState {
 
 export const DEFAULT_STATE: AppState = {
   baseline: {
-    baselineSpendAnnual: 88000,
+    baselineSpendAnnual: 75000,
   },
   income: {
-    guaranteedIncomeAnnualNet: 125000, // set net if you want; change anytime
+    guaranteedIncomeAnnualNet: 92000, // set net if you want; change anytime
   },
   cash: {
-    cashBalance: 700000,
+    cashBalance: 660000,
     contingencyAnnual: 15000,
   },
   super: {
-    superBalance: 2050000,
+    superBalance: 2060000,
     drawdownAnnual: 0,
     minRequiredDrawdownRate: 0.04,
     excessDrawdownIntentional: true,
